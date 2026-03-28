@@ -7,21 +7,76 @@ namespace Fatkulnurk\RadixConverter\Strategies;
 use Fatkulnurk\RadixConverter\Contracts\IDConverterInterface;
 use Fatkulnurk\RadixConverter\Exceptions\ConverterException;
 
+/**
+ * Abstract base class for radix (base-N) converter implementations.
+ *
+ * This class provides the core encoding and decoding logic for converting
+ * integers to and from different base representations. Concrete implementations
+ * must define their specific character set via the {@see getCharset()} method.
+ *
+ * The encoding algorithm uses repeated division by the base, while decoding
+ * uses positional notation multiplication.
+ *
+ * @see IDConverterInterface
+ */
 abstract readonly class AbstractBaseConverter implements IDConverterInterface
 {
+    /**
+     * The character set used for encoding/decoding.
+     * Each character represents a digit in the target base.
+     */
     protected readonly string $charset;
+
+    /**
+     * The base (radix) value, calculated from the charset length.
+     * For example, Base62 has a base of 62.
+     */
     protected readonly int $base;
 
+    /**
+     * Initialize the converter with the charset from the subclass.
+     *
+     * The base is automatically calculated as the length of the charset.
+     */
     public function __construct()
     {
         $this->charset = $this->getCharset();
         $this->base = \strlen($this->charset);
     }
 
+    /**
+     * Get the character set for this converter implementation.
+     *
+     * Each subclass must define its own charset that determines the base
+     * and the characters used for representation.
+     *
+     * @return string The charset string where position represents the digit value
+     *
+     * @example
+     * // Base62 charset
+     * return '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+     */
     abstract protected function getCharset(): string;
 
     /**
-     * @throws ConverterException
+     * Encode an integer into a string representation using the specific base.
+     *
+     * The encoding process repeatedly divides the number by the base and
+     * uses the remainder to select characters from the charset.
+     *
+     * @param int $number The non-negative integer to encode
+     *
+     * @return string The encoded string representation
+     *
+     * @throws ConverterException If the number is negative
+     *
+     * @example
+     * // Encoding the number 12345 in Base62
+     * $converter->encode(12345); // Returns "3D7"
+     *
+     * @example
+     * // Encoding zero returns the first character of charset
+     * $converter->encode(0); // Returns "0"
      */
     #[\Override]
     public function encode(int $number): string
@@ -45,7 +100,24 @@ abstract readonly class AbstractBaseConverter implements IDConverterInterface
     }
 
     /**
-     * @throws ConverterException
+     * Decode a string representation back to an integer.
+     *
+     * The decoding process uses positional notation, multiplying the accumulated
+     * result by the base and adding the position value of each character.
+     *
+     * @param string $encoded The encoded string to decode
+     *
+     * @return int The decoded integer value
+     *
+     * @throws ConverterException If the string is empty or contains invalid characters
+     *
+     * @example
+     * // Decoding a Base62 string
+     * $converter->decode("3D7"); // Returns 12345
+     *
+     * @example
+     * // Decoding the first charset character
+     * $converter->decode("0"); // Returns 0
      */
     #[\Override]
     public function decode(string $encoded): int
