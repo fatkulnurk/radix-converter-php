@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Fatkulnurk\RadixConverter\Exceptions;
 
-class ConverterException extends \Exception
+class ConverterException extends \InvalidArgumentException
 {
-
 }

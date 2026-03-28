@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Fatkulnurk\RadixConverter\Enums;
 
-enum ConverterType
+enum ConverterType: string
 {
-    case BASE62;
-    case ALPHA_NUMERIC_UPPER;
-    case ALPHA_NUMERIC_LOWER;
-    case ALPHA_ONLY;
+    case BASE62 = 'base62';
+    case ALPHA_NUMERIC_UPPER = 'alphanumeric_upper';
+    case ALPHA_NUMERIC_LOWER = 'alphanumeric_lower';
+    case ALPHA_ONLY = 'alpha_only';
 }

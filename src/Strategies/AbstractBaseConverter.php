@@ -9,13 +9,13 @@ use Fatkulnurk\RadixConverter\Exceptions\ConverterException;
 
 abstract readonly class AbstractBaseConverter implements IDConverterInterface
 {
-    protected string $charset;
-    protected int $base;
+    protected readonly string $charset;
+    protected readonly int $base;
 
     public function __construct()
     {
         $this->charset = $this->getCharset();
-        $this->base = strlen($this->charset);
+        $this->base = \strlen($this->charset);
     }
 
     abstract protected function getCharset(): string;
@@ -23,10 +23,11 @@ abstract readonly class AbstractBaseConverter implements IDConverterInterface
     /**
      * @throws ConverterException
      */
+    #[\Override]
     public function encode(int $number): string
     {
         if ($number < 0) {
-            throw new ConverterException('input number must be positive');
+            throw new ConverterException('Input number must be positive');
         }
 
         if ($number === 0) {
@@ -37,7 +38,7 @@ abstract readonly class AbstractBaseConverter implements IDConverterInterface
         while ($number > 0) {
             $remainder = $number % $this->base;
             $result = $this->charset[$remainder] . $result;
-            $number = intdiv($number, $this->base);
+            $number = \intdiv($number, $this->base);
         }
 
         return $result;
@@ -46,19 +47,19 @@ abstract readonly class AbstractBaseConverter implements IDConverterInterface
     /**
      * @throws ConverterException
      */
+    #[\Override]
     public function decode(string $encoded): int
     {
-
         if ($encoded === '') {
-            throw new ConverterException("Encoded value cannot be empty.");
+            throw new ConverterException('Encoded value cannot be empty');
         }
 
         $result = 0;
-        $length = strlen($encoded);
+        $length = \strlen($encoded);
 
         for ($i = 0; $i < $length; $i++) {
             $char = $encoded[$i];
-            $position = strpos($this->charset, $char);
+            $position = \strpos($this->charset, $char);
 
             if ($position === false) {
                 throw new ConverterException("Invalid character found: {$char}");

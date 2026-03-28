@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Fatkulnurk\RadixConverter;
@@ -10,7 +11,7 @@ use Fatkulnurk\RadixConverter\Strategies\AlphanumericUpperStrategy;
 use Fatkulnurk\RadixConverter\Strategies\AlphaOnlyStrategy;
 use Fatkulnurk\RadixConverter\Strategies\Base62Strategy;
 
-class ConverterFactory
+final class ConverterFactory
 {
     public static function make(ConverterType $type): IDConverterInterface
     {

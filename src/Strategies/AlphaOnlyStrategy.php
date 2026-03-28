@@ -7,5 +7,10 @@ namespace Fatkulnurk\RadixConverter\Strategies;
 final readonly class AlphaOnlyStrategy extends AbstractBaseConverter
 {
     private const string CHARSET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    protected function getCharset(): string { return self::CHARSET; }
+
+    #[\Override]
+    protected function getCharset(): string
+    {
+        return self::CHARSET;
+    }
 }
