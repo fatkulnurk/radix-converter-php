@@ -1,10 +1,22 @@
 # Radix Converter PHP
 
-A type-safe radix (base-N) converter library for PHP 8.5+. Convert integers to and from different base representations.
+A type-safe library to convert numbers into short strings and back. Perfect for URL shorteners, unique IDs, and compact representations.
 
 [Packagist](https://packagist.org/packages/fatkulnurk/radix-converter)
 
+---
+
+## What Does This Do?
+
+This library converts numbers like `12345` into short strings like `"3d7"` and back. This is useful for:
+
+- Creating short URLs (like `bit.ly/3d7`)
+- Generating compact unique IDs
+- Making numbers easier to read and share
+
 ## Installation
+
+Run this command in your terminal:
 
 ```bash
 composer require fatkulnurk/radix-converter
@@ -13,9 +25,10 @@ composer require fatkulnurk/radix-converter
 ## Requirements
 
 - PHP 8.5 or higher
-- Composer
 
 ## Quick Start
+
+Here's the simplest way to use it:
 
 ```php
 <?php
@@ -25,68 +38,80 @@ require_once 'vendor/autoload.php';
 use Fatkulnurk\RadixConverter\ConverterFactory;
 use Fatkulnurk\RadixConverter\Enums\ConverterType;
 
+// Create a converter
 $converter = ConverterFactory::make(ConverterType::BASE62);
 
-$encoded = $converter->encode(12345); // "3d7"
-$decoded = $converter->decode($encoded); // 12345
-```
+// Convert number to string
+$encoded = $converter->encode(12345);
+echo $encoded; // Output: "3d7"
 
-## Available Converter Types
-
-| Type | Charset | Base |
-|------|---------|------|
-| `BASE62` | `0-9, a-z, A-Z` | 62 |
-| `ALPHA_NUMERIC_UPPER` | `0-9, A-Z` | 36 |
-| `ALPHA_NUMERIC_LOWER` | `0-9, a-z` | 36 |
-| `ALPHA_ONLY` | `a-z, A-Z` | 52 |
-
-## Usage Examples
-
-### Using the Factory
-
-```php
-use Fatkulnurk\RadixConverter\ConverterFactory;
-use Fatkulnurk\RadixConverter\Enums\ConverterType;
-
-$base62 = ConverterFactory::make(ConverterType::BASE62);
-echo $base62->encode(12345); // "3d7"
-
-$alphaUpper = ConverterFactory::make(ConverterType::ALPHA_NUMERIC_UPPER);
-echo $alphaUpper->encode(1000); // "RS"
-
-$alphaLower = ConverterFactory::make(ConverterType::ALPHA_NUMERIC_LOWER);
-echo $alphaLower->encode(1000); // "rs"
-
-$alphaOnly = ConverterFactory::make(ConverterType::ALPHA_ONLY);
-echo $alphaOnly->encode(100); // "cU"
-```
-
-### Direct Strategy Instantiation
-
-```php
-use Fatkulnurk\RadixConverter\Strategies\Base62Strategy;
-
-$converter = new Base62Strategy();
-$encoded = $converter->encode(999999);
+// Convert string back to number
 $decoded = $converter->decode($encoded);
+echo $decoded; // Output: 12345
 ```
 
-### URL Shortener Example
+## Available Converters
+
+The library comes with 4 built-in converters:
+
+| Name | Characters Used | Example Output |
+|------|-----------------|----------------|
+| BASE62 | Numbers + lowercase + uppercase | `3d7` |
+| ALPHA_NUMERIC_UPPER | Numbers + uppercase letters | `RS` |
+| ALPHA_NUMERIC_LOWER | Numbers + lowercase letters | `rs` |
+| ALPHA_ONLY | Letters only (no numbers) | `cU` |
+
+## Common Use Cases
+
+### 1. URL Shortener
+
+Convert database IDs into short codes for URLs:
 
 ```php
-use Fatkulnurk\RadixConverter\ConverterFactory;
-use Fatkulnurk\RadixConverter\Enums\ConverterType;
-
 $converter = ConverterFactory::make(ConverterType::BASE62);
 
+// Your database ID
 $databaseId = 154832;
-$shortCode = $converter->encode($databaseId);
-$shortUrl = "https://example.com/u/{$shortCode}";
 
+// Convert to short code
+$shortCode = $converter->encode($databaseId);
+// Result: "Ehi"
+
+// Create short URL
+$shortUrl = "https://yoursite.com/u/" . $shortCode;
+// Result: "https://yoursite.com/u/Ehi"
+
+// Later, get the original ID back
 $originalId = $converter->decode($shortCode);
+// Result: 154832
 ```
 
-### Error Handling
+### 2. Different Converter Types
+
+```php
+// Base62 (most compact)
+$base62 = ConverterFactory::make(ConverterType::BASE62);
+echo $base62->encode(1000); // "g8"
+
+// Uppercase only (easier to read)
+$upper = ConverterFactory::make(ConverterType::ALPHA_NUMERIC_UPPER);
+echo $upper->encode(1000); // "RS"
+
+// Lowercase only (easier to type)
+$lower = ConverterFactory::make(ConverterType::ALPHA_NUMERIC_LOWER);
+echo $lower->encode(1000); // "rs"
+
+// Letters only (no numbers)
+$alpha = ConverterFactory::make(ConverterType::ALPHA_ONLY);
+echo $alpha->encode(100); // "cU"
+```
+
+### 3. Error Handling
+
+The library will throw errors if you try to:
+- Encode negative numbers
+- Decode empty strings
+- Decode invalid characters
 
 ```php
 use Fatkulnurk\RadixConverter\Exceptions\ConverterException;
@@ -110,29 +135,25 @@ try {
 }
 ```
 
-## Custom Strategies
+## Advanced: Custom Converters
 
-You can create and register custom converter strategies for any base system.
+You can create your own converter for any base system.
 
-### Using Built-in HexStrategy
+### Using the Built-in Hex Converter
 
 ```php
 use Fatkulnurk\RadixConverter\CustomConverterRegistry;
-use Fatkulnurk\RadixConverter\ConverterFactory;
 
 // Register the hex converter
 CustomConverterRegistry::register('hex', new \Fatkulnurk\RadixConverter\Strategies\HexStrategy());
 
-// Use via registry
+// Use it
 $converter = CustomConverterRegistry::get('hex');
 echo $converter->encode(255); // "ff"
-
-// Or use via factory
-$converter = ConverterFactory::make('hex');
-echo $converter->encode(255); // "ff"
+echo $converter->decode('ff'); // 255
 ```
 
-### Creating Your Own Strategy
+### Creating Your Own Converter
 
 ```php
 use Fatkulnurk\RadixConverter\Strategies\AbstractBaseConverter;
@@ -155,136 +176,29 @@ $converter = ConverterFactory::make('binary');
 echo $converter->encode(42); // "101010"
 ```
 
-### Creating External Custom Converter
+## For Laravel Users
 
-```php
-use Fatkulnurk\RadixConverter\Contracts\IDConverterInterface;
-use Fatkulnurk\RadixConverter\CustomConverterRegistry;
+### Laravel Octane / Swoole Warning
 
-class MyCustomConverter implements IDConverterInterface
-{
-    public function encode(int $number): string
-    {
-        return 'X' . strtoupper(dechex($number));
-    }
+If you use Laravel Octane or Swoole, do NOT use `CustomConverterRegistry` because it keeps data between requests, which can cause problems.
 
-    public function decode(string $encoded): int
-    {
-        return hexdec(substr($encoded, 1));
-    }
-}
-
-CustomConverterRegistry::register('my_custom', new MyCustomConverter());
-$converter = ConverterFactory::make('my_custom');
-```
-
-### Registry Methods
-
-```php
-// Check if a converter is registered
-CustomConverterRegistry::has('hex'); // true
-
-// Get all registered converter names
-CustomConverterRegistry::getRegisteredNames(); // ['hex', 'binary', ...]
-
-// Unregister a converter
-CustomConverterRegistry::unregister('hex');
-
-// Clear all registered converters
-CustomConverterRegistry::clear();
-```
-
-## API Reference
-
-### `ConverterFactory::make(ConverterType $type): IDConverterInterface`
-
-Create a new converter instance based on the specified type.
-
-### `IDConverterInterface::encode(int $number): string`
-
-Encode a non-negative integer into a string representation.
-
-**Parameters:**
-- `$number` - The integer to encode (must be >= 0)
-
-**Returns:** The encoded string
-
-**Throws:** `ConverterException` if the number is negative
-
-### `IDConverterInterface::decode(string $encoded): int`
-
-Decode a string representation back to an integer.
-
-**Parameters:**
-- `$encoded` - The encoded string to decode
-
-**Returns:** The decoded integer
-
-**Throws:** `ConverterException` if the string is empty or contains invalid characters
-
-## Running Examples
-
-```bash
-# Basic usage examples
-php examples/usage.php
-
-# Custom strategy examples
-php examples/custom-strategy.php
-
-# DI and Octane safety examples
-php examples/di-octane-safety.php
-```
-
-## Laravel Octane / Swoole Safety
-
-### Important: Static Registry is NOT Safe
-
-`CustomConverterRegistry` uses static storage which persists across requests in Swoole/Octane. This can cause data leakage between requests.
-
-### Recommended: Use ConverterManager
+Instead, use `ConverterManager`:
 
 ```php
 use Fatkulnurk\RadixConverter\ConverterManager;
 use Fatkulnurk\RadixConverter\Enums\ConverterType;
 
-// Create manager instance (per-request or per-container)
+// Create a manager
 $manager = new ConverterManager();
 
-// Encode/decode
+// Use it
 $encoded = $manager->encode(ConverterType::BASE62, 12345);
 $decoded = $manager->decode(ConverterType::BASE62, $encoded);
-
-// Register custom converters
-$manager->registerCustom('hex', new HexStrategy());
 ```
 
-### Dependency Injection Pattern
+### Using in Laravel Controllers
 
 ```php
-class UrlShortenerService
-{
-    public function __construct(
-        private ConverterManager $converterManager
-    ) {}
-
-    public function shorten(int $id): string
-    {
-        return $this->converterManager->encode(ConverterType::BASE62, $id);
-    }
-}
-```
-
-### Laravel Integration
-
-The package includes a service provider for Laravel:
-
-```php
-// In config/app.php
-'providers' => [
-    Fatkulnurk\RadixConverter\Laravel\RadixConverterServiceProvider::class,
-];
-
-// Usage via dependency injection
 class MyController extends Controller
 {
     public function __construct(
@@ -293,23 +207,27 @@ class MyController extends Controller
 
     public function store(Request $request)
     {
-        $code = $this->converterManager->encode(ConverterType::BASE62, $id);
+        $code = $this->converterManager->encode(ConverterType::BASE62, 123);
+        // ...
     }
 }
 ```
 
-### Memory Management
+## More Examples
 
-For long-running processes, clear the cache periodically:
+The library includes example files you can run:
 
-```php
-// Clear cached converters (custom converters preserved)
-$manager->clearCache();
+```bash
+# Basic usage
+php examples/usage.php
 
-// Clear all converters
-$manager->clearAll();
+# Custom converters
+php examples/custom-strategy.php
+
+# Laravel Octane safety
+php examples/di-octane-safety.php
 ```
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+MIT License - free to use in your projects.
