@@ -52,14 +52,99 @@ echo $decoded; // Output: 12345
 
 ## Available Converters
 
-The library comes with 4 built-in converters:
+The library comes with 5 built-in converters:
 
-| Name | Characters Used | Example Output |
-|------|-----------------|----------------|
-| BASE62 | Numbers + lowercase + uppercase | `3d7` |
-| ALPHA_NUMERIC_UPPER | Numbers + uppercase letters | `RS` |
-| ALPHA_NUMERIC_LOWER | Numbers + lowercase letters | `rs` |
-| ALPHA_ONLY | Letters only (no numbers) | `cU` |
+| Name | Characters Used | Base | Example Output |
+|------|-----------------|------|----------------|
+| BASE62 | Numbers + lowercase + uppercase | 62 | `3d7` |
+| ALPHA_NUMERIC_UPPER | Numbers + uppercase letters | 36 | `RS` |
+| ALPHA_NUMERIC_LOWER | Numbers + lowercase letters | 36 | `rs` |
+| ALPHA_ONLY | Letters only (no numbers) | 52 | `cU` |
+| HEX | Numbers + a-f | 16 | `ff` |
+
+### How Each Strategy Works
+
+All converters extend `AbstractBaseConverter` which uses the **radix (base-N) algorithm**:
+
+**Encoding** (number → string):
+1. Divide the number by the base
+2. Use the remainder to pick a character from the charset
+3. Repeat with the quotient until it becomes 0
+4. Read the result from last to first
+
+**Decoding** (string → number):
+1. Start with 0
+2. For each character, multiply result by base and add the character's position value
+3. Return the final number
+
+#### 1. Base62 Strategy (Most Compact)
+
+- **Charset**: `0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ` (62 chars)
+- **Base**: 62
+- **Best for**: URL shorteners, compact unique IDs
+
+```php
+$converter = ConverterFactory::make(ConverterType::BASE62);
+$converter->encode(12345); // "3D7"
+$converter->decode("3D7"); // 12345
+```
+
+**Example calculation for `12345`**:
+- 12345 ÷ 62 = 199 remainder **7** → charset[7] = "7"
+- 199 ÷ 62 = 3 remainder **13** → charset[13] = "D"
+- 3 ÷ 62 = 0 remainder **3** → charset[3] = "3"
+- Result: **"3D7"**
+
+#### 2. Alphanumeric Upper Strategy
+
+- **Charset**: `0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ` (36 chars)
+- **Base**: 36
+- **Best for**: Case-insensitive identifiers, easier to read
+
+```php
+$converter = ConverterFactory::make(ConverterType::ALPHA_NUMERIC_UPPER);
+$converter->encode(1000); // "RS"
+$converter->decode("RS"); // 1000
+```
+
+#### 3. Alphanumeric Lower Strategy
+
+- **Charset**: `0123456789abcdefghijklmnopqrstuvwxyz` (36 chars)
+- **Base**: 36
+- **Best for**: Easy typing, lowercase-only systems
+
+```php
+$converter = ConverterFactory::make(ConverterType::ALPHA_NUMERIC_LOWER);
+$converter->encode(1000); // "rs"
+$converter->decode("rs"); // 1000
+```
+
+#### 4. Alpha Only Strategy
+
+- **Charset**: `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ` (52 chars)
+- **Base**: 52
+- **Best for**: When numbers must be excluded from identifiers
+
+```php
+$converter = ConverterFactory::make(ConverterType::ALPHA_ONLY);
+$converter->encode(100); // "cU"
+$converter->decode("cU"); // 100
+```
+
+#### 5. Hex Strategy (Custom)
+
+- **Charset**: `0123456789abcdef` (16 chars)
+- **Base**: 16
+- **Best for**: Standard hexadecimal conversion
+
+```php
+use Fatkulnurk\RadixConverter\CustomConverterRegistry;
+
+CustomConverterRegistry::register('hex', new \Fatkulnurk\RadixConverter\Strategies\HexStrategy());
+$converter = CustomConverterRegistry::get('hex');
+$converter->encode(255); // "ff"
+$converter->decode("ff"); // 255
+```
 
 ## Common Use Cases
 
@@ -226,6 +311,47 @@ php examples/custom-strategy.php
 
 # Laravel Octane safety
 php examples/di-octane-safety.php
+```
+
+## CI/CD
+
+This project uses GitHub Actions for continuous integration. The workflow is configured in `.github/workflows/ci.yml`.
+
+### How It Works
+
+The CI pipeline runs automatically on:
+- Every push to `main` or `master` branches
+- Every pull request targeting `main` or `master` branches
+
+### Workflow Steps
+
+| Step | Description |
+|------|-------------|
+| **Checkout** | Clones your code from GitHub |
+| **Setup PHP** | Installs PHP 8.5 with required extensions |
+| **Install Dependencies** | Runs `composer install` to get all packages |
+| **Run Tests** | Executes PHPUnit tests via `composer test` |
+
+### Running Tests Locally
+
+Before pushing your changes, run tests locally:
+
+```bash
+# Run all tests
+composer test
+
+# Run tests with coverage report
+composer test:coverage
+```
+
+### Customizing the Workflow
+
+To test on multiple PHP versions, edit `.github/workflows/ci.yml`:
+
+```yaml
+strategy:
+  matrix:
+    php: ['8.5', '8.6']  # Add more versions here
 ```
 
 ## License
