@@ -108,6 +108,90 @@ try {
 }
 ```
 
+## Custom Strategies
+
+You can create and register custom converter strategies for any base system.
+
+### Using Built-in HexStrategy
+
+```php
+use Fatkulnurk\RadixConverter\CustomConverterRegistry;
+use Fatkulnurk\RadixConverter\ConverterFactory;
+
+// Register the hex converter
+CustomConverterRegistry::register('hex', new \Fatkulnurk\RadixConverter\Strategies\HexStrategy());
+
+// Use via registry
+$converter = CustomConverterRegistry::get('hex');
+echo $converter->encode(255); // "ff"
+
+// Or use via factory
+$converter = ConverterFactory::make('hex');
+echo $converter->encode(255); // "ff"
+```
+
+### Creating Your Own Strategy
+
+```php
+use Fatkulnurk\RadixConverter\Strategies\AbstractBaseConverter;
+use Fatkulnurk\RadixConverter\CustomConverterRegistry;
+
+// Create a binary (base-2) converter
+final readonly class BinaryStrategy extends AbstractBaseConverter
+{
+    private const string CHARSET = '01';
+
+    protected function getCharset(): string
+    {
+        return self::CHARSET;
+    }
+}
+
+// Register and use
+CustomConverterRegistry::register('binary', new BinaryStrategy());
+$converter = ConverterFactory::make('binary');
+echo $converter->encode(42); // "101010"
+```
+
+### Creating External Custom Converter
+
+```php
+use Fatkulnurk\RadixConverter\Contracts\IDConverterInterface;
+use Fatkulnurk\RadixConverter\CustomConverterRegistry;
+
+class MyCustomConverter implements IDConverterInterface
+{
+    public function encode(int $number): string
+    {
+        return 'X' . strtoupper(dechex($number));
+    }
+
+    public function decode(string $encoded): int
+    {
+        return hexdec(substr($encoded, 1));
+    }
+}
+
+CustomConverterRegistry::register('my_custom', new MyCustomConverter());
+$converter = ConverterFactory::make('my_custom');
+```
+
+### Registry Methods
+
+```php
+// Check if a converter is registered
+CustomConverterRegistry::has('hex'); // true
+
+// Get all registered converter names
+CustomConverterRegistry::getRegisteredNames(); // ['hex', 'binary', ...]
+
+// Unregister a converter
+CustomConverterRegistry::unregister('hex');
+
+// Clear all registered converters
+CustomConverterRegistry::clear();
+```
+
 ## API Reference
 
 ### `ConverterFactory::make(ConverterType $type): IDConverterInterface`
@@ -151,14 +235,20 @@ src/
 │   ├── Base62Strategy.php
 │   ├── AlphanumericUpperStrategy.php
 │   ├── AlphanumericLowerStrategy.php
-│   └── AlphaOnlyStrategy.php
-└── ConverterFactory.php
+│   ├── AlphaOnlyStrategy.php
+│   └── HexStrategy.php
+├── ConverterFactory.php
+└── CustomConverterRegistry.php
 ```
 
 ## Running Examples
 
 ```bash
+# Basic usage examples
 php examples/usage.php
+
+# Custom strategy examples
+php examples/custom-strategy.php
 ```
 
 ## License
