@@ -8,6 +8,11 @@
             "Fatkulnurk\\RadixConverter\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Fatkulnurk\\RadixConverter\\Tests\\": "tests/"
+        }
+    },
     "authors": [
         {
             "name": "fatkulnurk",
@@ -16,5 +21,12 @@
     ],
     "require": {
         "PHP": ">=8.5"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^13.0"
+    },
+    "scripts": {
+        "test": "phpunit",
+        "test:coverage": "phpunit --coverage-html=coverage"
     }
 }
