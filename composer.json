@@ -1,0 +1,20 @@
+{
+    "name": "fatkulnurk/radix-converter",
+    "description": "Modern & Type-safe Radix (Base-N) Converter for PHP",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Fatkulnurk\\RadixConverter\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "fatkulnurk",
+            "email": "fatkulnurk@gmail.com"
+        }
+    ],
+    "require": {
+        "PHP": ">=8.5"
+    }
+}
