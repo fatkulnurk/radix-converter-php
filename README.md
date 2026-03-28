@@ -2,6 +2,8 @@
 
 A type-safe radix (base-N) converter library for PHP 8.5+. Convert integers to and from different base representations.
 
+[Packagist](https://packagist.org/packages/fatkulnurk/radix-converter)
+
 ## Installation
 
 ```bash
@@ -220,27 +222,6 @@ Decode a string representation back to an integer.
 
 **Throws:** `ConverterException` if the string is empty or contains invalid characters
 
-## Project Structure
-
-```
-src/
-├── Contracts/
-│   └── IDConverterInterface.php
-├── Enums/
-│   └── ConverterType.php
-├── Exceptions/
-│   └── ConverterException.php
-├── Strategies/
-│   ├── AbstractBaseConverter.php
-│   ├── Base62Strategy.php
-│   ├── AlphanumericUpperStrategy.php
-│   ├── AlphanumericLowerStrategy.php
-│   ├── AlphaOnlyStrategy.php
-│   └── HexStrategy.php
-├── ConverterFactory.php
-└── CustomConverterRegistry.php
-```
-
 ## Running Examples
 
 ```bash
@@ -249,6 +230,84 @@ php examples/usage.php
 
 # Custom strategy examples
 php examples/custom-strategy.php
+
+# DI and Octane safety examples
+php examples/di-octane-safety.php
+```
+
+## Laravel Octane / Swoole Safety
+
+### Important: Static Registry is NOT Safe
+
+`CustomConverterRegistry` uses static storage which persists across requests in Swoole/Octane. This can cause data leakage between requests.
+
+### Recommended: Use ConverterManager
+
+```php
+use Fatkulnurk\RadixConverter\ConverterManager;
+use Fatkulnurk\RadixConverter\Enums\ConverterType;
+
+// Create manager instance (per-request or per-container)
+$manager = new ConverterManager();
+
+// Encode/decode
+$encoded = $manager->encode(ConverterType::BASE62, 12345);
+$decoded = $manager->decode(ConverterType::BASE62, $encoded);
+
+// Register custom converters
+$manager->registerCustom('hex', new HexStrategy());
+```
+
+### Dependency Injection Pattern
+
+```php
+class UrlShortenerService
+{
+    public function __construct(
+        private ConverterManager $converterManager
+    ) {}
+
+    public function shorten(int $id): string
+    {
+        return $this->converterManager->encode(ConverterType::BASE62, $id);
+    }
+}
+```
+
+### Laravel Integration
+
+The package includes a service provider for Laravel:
+
+```php
+// In config/app.php
+'providers' => [
+    Fatkulnurk\RadixConverter\Laravel\RadixConverterServiceProvider::class,
+];
+
+// Usage via dependency injection
+class MyController extends Controller
+{
+    public function __construct(
+        private ConverterManager $converterManager
+    ) {}
+
+    public function store(Request $request)
+    {
+        $code = $this->converterManager->encode(ConverterType::BASE62, $id);
+    }
+}
+```
+
+### Memory Management
+
+For long-running processes, clear the cache periodically:
+
+```php
+// Clear cached converters (custom converters preserved)
+$manager->clearCache();
+
+// Clear all converters
+$manager->clearAll();
 ```
 
 ## License
