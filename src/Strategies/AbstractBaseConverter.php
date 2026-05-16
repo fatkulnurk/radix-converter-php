@@ -72,7 +72,7 @@ abstract readonly class AbstractBaseConverter implements IDConverterInterface
      *
      * @example
      * // Encoding the number 12345 in Base62
-     * $converter->encode(12345); // Returns "3D7"
+     * $converter->encode(12345); // Returns "3d7"
      *
      * @example
      * // Encoding zero returns the first character of charset
@@ -113,7 +113,7 @@ abstract readonly class AbstractBaseConverter implements IDConverterInterface
      *
      * @example
      * // Decoding a Base62 string
-     * $converter->decode("3D7"); // Returns 12345
+     * $converter->decode("3d7"); // Returns 12345
      *
      * @example
      * // Decoding the first charset character

@@ -23,7 +23,7 @@ interface IDConverterInterface
      *
      * @example
      * // Base62 encoding
-     * $converter->encode(12345); // returns "3D7"
+     * $converter->encode(12345); // returns "3d7"
      */
     public function encode(int $number): string;
 
@@ -38,7 +38,7 @@ interface IDConverterInterface
      *
      * @example
      * // Base62 decoding
-     * $converter->decode("3D7"); // returns 12345
+     * $converter->decode("3d7"); // returns 12345
      */
     public function decode(string $encoded): int;
 }

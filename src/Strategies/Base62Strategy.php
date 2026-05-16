@@ -16,10 +16,10 @@ namespace Fatkulnurk\RadixConverter\Strategies;
  * $converter = new Base62Strategy();
  *
  * // Encode an integer
- * $encoded = $converter->encode(12345); // "3D7"
+ * $encoded = $converter->encode(12345); // "3d7"
  *
  * // Decode back to integer
- * $decoded = $converter->decode("3D7"); // 12345
+ * $decoded = $converter->decode("3d7"); // 12345
  *
  * @see AbstractBaseConverter
  */
