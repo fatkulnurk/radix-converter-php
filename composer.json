@@ -1,6 +1,6 @@
 {
     "name": "fatkulnurk/radix-converter",
-    "description": "Modern & Type-safe Radix (Base-N) Converter for PHP",
+    "description": "A type-safe PHP library to convert numbers into short strings and back. Perfect for URL shorteners, unique IDs, and compact representations.",
     "type": "library",
     "license": "MIT",
     "autoload": {
