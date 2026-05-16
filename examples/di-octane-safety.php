@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use Fatkulnurk\RadixConverter\ConverterFactory;
 use Fatkulnurk\RadixConverter\ConverterManager;
 use Fatkulnurk\RadixConverter\CustomConverterRegistry;
 use Fatkulnurk\RadixConverter\Enums\ConverterType;
@@ -158,8 +159,6 @@ echo "- Each request gets fresh instance\n\n";
 // ============================================================================
 echo "7. Factory vs Manager Comparison\n";
 echo str_repeat("-", 50) . "\n";
-
-use Fatkulnurk\RadixConverter\ConverterFactory;
 
 // Factory - creates new instance each time (no caching)
 $converter1 = ConverterFactory::make(ConverterType::BASE62);

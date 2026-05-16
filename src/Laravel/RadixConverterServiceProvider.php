@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Fatkulnurk\RadixConverter;
+namespace Fatkulnurk\RadixConverter\Laravel;
 
+use Fatkulnurk\RadixConverter\ConverterManager;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\ServiceProvider;
 

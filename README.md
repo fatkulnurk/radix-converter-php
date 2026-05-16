@@ -85,15 +85,15 @@ All converters extend `AbstractBaseConverter` which uses the **radix (base-N) al
 
 ```php
 $converter = ConverterFactory::make(ConverterType::BASE62);
-$converter->encode(12345); // "3D7"
-$converter->decode("3D7"); // 12345
+$converter->encode(12345); // "3d7"
+$converter->decode("3d7"); // 12345
 ```
 
 **Example calculation for `12345`**:
 - 12345 ÷ 62 = 199 remainder **7** → charset[7] = "7"
-- 199 ÷ 62 = 3 remainder **13** → charset[13] = "D"
+- 199 ÷ 62 = 3 remainder **13** → charset[13] = "d"
 - 3 ÷ 62 = 0 remainder **3** → charset[3] = "3"
-- Result: **"3D7"**
+- Result: **"3d7"**
 
 #### 2. Alphanumeric Upper Strategy
 
