@@ -6,6 +6,30 @@ A type-safe library to convert numbers into short strings and back. Perfect for 
 
 ---
 
+## Table of Contents
+
+- [What Does This Do?](#what-does-this-do)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Built-in Converters](#built-in-converters)
+  - [Base62 Strategy](#1-base62-strategy-most-compact)
+  - [Alphanumeric Upper Strategy](#2-alphanumeric-upper-strategy)
+  - [Alphanumeric Lower Strategy](#3-alphanumeric-lower-strategy)
+  - [Alpha Only Strategy](#4-alpha-only-strategy)
+  - [Hex Strategy (Custom)](#5-hex-strategy-custom)
+- [Common Use Cases](#common-use-cases)
+  - [URL Shortener](#1-url-shortener)
+  - [Different Converter Types](#2-different-converter-types)
+  - [Error Handling](#3-error-handling)
+- [Custom Converters](#custom-converters)
+- [For Laravel Users](#for-laravel-users)
+- [More Examples](#more-examples)
+- [CI/CD](#cicd)
+- [License](#license)
+
+---
+
 ## What Does This Do?
 
 This library converts numbers like `12345` into short strings like `"3d7"` and back. This is useful for:
@@ -50,7 +74,7 @@ $decoded = $converter->decode($encoded);
 echo $decoded; // Output: 12345
 ```
 
-## Available Converters
+## Built-in Converters
 
 The library comes with 5 built-in converters:
 
@@ -220,7 +244,7 @@ try {
 }
 ```
 
-## Advanced: Custom Converters
+## Custom Converters
 
 You can create your own converter for any base system.
 
